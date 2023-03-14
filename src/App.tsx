@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import LogViewer from "./Components/LogViewer";
+import TimePicker from "./Components/TimePicker";
+import { TimeRange } from "./types";
 
-function App() {
+export default function App() {
+  const [range, setRange] = useState<TimeRange>(TimeRange.Last5Minutes);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <div className="time-range-container">
+        <h1>LogViewer</h1>
+        <div className="select-timepicker">
+          <TimePicker value={range} setRange={setRange} />
+        </div>
+      </div>
+      <LogViewer range={range} />
     </div>
   );
 }
 
-export default App;
