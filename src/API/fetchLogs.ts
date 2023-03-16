@@ -78,7 +78,7 @@ export default async function fetchLogs(
       logs.push({
         ts,
         level: LogLevel.Error,
-        msg: '  File "/home/runner/work/baseten/baseten/.venv/lib/python3.9/site-packages/promise/promise.py", line 489, in _resolve_from_executor',
+        msg: '  File "/home/runner/work/r3bl/r3bl/.venv/lib/python3.9/site-packages/promise/promise.py", line 489, in _resolve_from_executor',
         replica: "replica-1",
       });
       logs.push({
@@ -90,7 +90,7 @@ export default async function fetchLogs(
       logs.push({
         ts,
         level: LogLevel.Error,
-        msg: '  File "/home/runner/work/baseten/baseten/.venv/lib/python3.9/site-packages/promise/promise.py", line 756, in executor',
+        msg: '  File "/home/runner/work/r3bl/r3bl/.venv/lib/python3.9/site-packages/promise/promise.py", line 756, in executor',
         replica: "replica-1",
       });
       logs.push({
@@ -102,7 +102,7 @@ export default async function fetchLogs(
       logs.push({
         ts,
         level: LogLevel.Error,
-        msg: '  File "/home/runner/work/baseten/baseten/.venv/lib/python3.9/site-packages/graphql/execution/middleware.py", line 75, in make_it_promise',
+        msg: '  File "/home/runner/work/r3bl/r3bl/.venv/lib/python3.9/site-packages/graphql/execution/middleware.py", line 75, in make_it_promise',
         replica: "replica-1",
       });
       logs.push({
@@ -114,7 +114,7 @@ export default async function fetchLogs(
       logs.push({
         ts,
         level: LogLevel.Error,
-        msg: '  File "/home/runner/work/baseten/baseten/backend/users/services.py", line 88, in wrap_function',
+        msg: '  File "/home/runner/work/r3bl/r3bl/backend/users/services.py", line 88, in wrap_function',
         replica: "replica-1",
       });
       logs.push({
@@ -126,7 +126,7 @@ export default async function fetchLogs(
       logs.push({
         ts,
         level: LogLevel.Error,
-        msg: '  File "/home/runner/work/baseten/baseten/backend/common/graphql/utils.py", line 170, in func_wrapper',
+        msg: '  File "/home/runner/work/r3bl/r3bl/backend/common/graphql/utils.py", line 170, in func_wrapper',
         replica: "replica-1",
       });
       logs.push({

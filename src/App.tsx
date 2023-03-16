@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import "./App.css";
 import LogViewer from "./Components/LogViewer";
 import TimePicker from "./Components/TimePicker";
 import { TimeRange } from "./types";
 
 export default function App() {
-  const [range, setRange] = useState<TimeRange>(TimeRange.Last5Minutes);
+  const [ range, setRange ] = useState<TimeRange>(TimeRange.Last5Minutes);
 
   return (
     <div className="app">
@@ -19,4 +19,3 @@ export default function App() {
     </div>
   );
 }
-

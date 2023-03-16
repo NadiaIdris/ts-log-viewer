@@ -1,7 +1,7 @@
 import {
   MutableRefObject,
+  useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -35,22 +35,8 @@ export type LogViewerProps = {
   range: TimeRange;
 };
 
-// TODO: use this hook to get the window size.
-function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({});
-  useLayoutEffect(() => {
-    function updateSize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-    window.addEventListener("resize", updateSize);
-    updateSize();
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-  return windowSize;
-}
+type HiddenRef = HTMLDivElement | null;
+type ListRef = List<LogLine> | null;
 
 export default function LogViewer({ range }: LogViewerProps) {
   const currentTsInSec = new Date().getTime() / 1000; // We divide by 1000 to get the timestamp in seconds.
@@ -58,25 +44,59 @@ export default function LogViewer({ range }: LogViewerProps) {
   const [showNewLogsButton, setShowNewLogsButton] = useState<boolean>(false);
   let logsEndRef: MutableRefObject<null | HTMLDivElement> = useRef(null);
   const nowTsInSecRef: MutableRefObject<number> = useRef(currentTsInSec);
-  type HiddenRef = HTMLDivElement | null;
+  // HiddenRef helps to calculate the height of each row in the list.
   const hiddenRowRef: MutableRefObject<HiddenRef> = useRef(null);
-  type ListRef = List<LogLine> | null;
   const listRef: MutableRefObject<ListRef> = useRef(null);
+  const rowHeightsRef = useRef<number[]>([]);
 
-  function scrollToBottom() {
-    logsEndRef?.current?.scrollIntoView({ behavior: "smooth" });
-    setShowNewLogsButton(false);
+  // Function to get the height of each row in the list.
+  function getItemHeight(logs: LogLine[], index: number) {
+    if (logs[index] === undefined) return 30;
+    const { msg, ts } = logs[index];
+    const formattedTs = formatDateTimeAMPM(new Date(ts * 1000));
+    hiddenRowRef.current!["textContent"] = formattedTs + ": " + msg;
+    const rowHeight = window
+      .getComputedStyle(hiddenRowRef.current as Element)
+      .getPropertyValue("height")
+      .slice(0, -2);
+    rowHeightsRef.current.push(Number(rowHeight));
+
+    return Number(rowHeight);
   }
 
+  const scrollToBottom = useCallback(() => {
+    if (listRef.current !== null) listRef.current.scrollToItem(logs.length - 1);
+    setShowNewLogsButton(false);
+  }, [logs.length]);
+
   // Handle onScroll: https://bobbyhadz.com/blog/react-onscroll.
-  function handleScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
-    const clientHeight = event.currentTarget.clientHeight;
-    const scrollHeight = event.currentTarget.scrollHeight;
-    // Note: don't track scrollTop in useState hook because it will return different values for scrollTop in different renders. Instead, use event.currentTarget.scrollTop.
-    const scrollTop = event.currentTarget.scrollTop;
-    const scrolledToBottom =
-      Math.abs(scrollHeight - clientHeight - scrollTop) < 1;
-    if (scrolledToBottom) setShowNewLogsButton(false);
+  function handleScroll({
+    scrollDirection,
+    scrollOffset,
+    scrollUpdateWasRequested,
+  }: {
+    scrollDirection: "forward" | "backward";
+    scrollOffset: number;
+    scrollUpdateWasRequested: boolean;
+  }) {
+    console.log("scrollOffset --> ", scrollOffset);
+
+    const rowHeightsTotal = rowHeightsRef.current.reduce((sum, value) => {
+      // console.log("sum --> ", sum);
+      return sum + value;
+    }, 0);
+
+
+    const viewportHeight = Number(listRef.current?.props.height);
+    const scrolledToBottom = (scrollOffset + viewportHeight)>= rowHeightsTotal;
+
+    console.log("rowHeightsTotal --> ", rowHeightsTotal);
+    console.log(
+      "scrolledToBottom -->",
+      scrolledToBottom
+    );
+
+    // if (scrolledToBottom) setShowNewLogsButton(false);
   }
 
   useEffect(() => {
@@ -90,16 +110,19 @@ export default function LogViewer({ range }: LogViewerProps) {
       );
       setLogs(logs);
 
-      if (listRef.current !== null) listRef.current.resetAfterIndex(0, true);
-      
+      if (listRef.current !== null) {
+        listRef.current.resetAfterIndex(0, true);
+        rowHeightsRef.current = [];
+      }
       scrollToBottom();
     };
     getLogs();
     return () => {};
-  }, [range]);
+  }, [range, scrollToBottom]);
 
   // When LogViewer component mounts, start a interval timer to fetch for fresh data for the last 2 mins in every 30 seconds.
   useEffect(() => {
+    const TwoMinInMs = 120000;
     const timer = setInterval(() => {
       const getLast2MinLogs = async () => {
         const timeStamp2MinAgo = nowTsInSecRef.current - 120;
@@ -125,41 +148,31 @@ export default function LogViewer({ range }: LogViewerProps) {
     return () => clearInterval(timer);
   });
 
-  const getItemSize = (logs: LogLine[], index: number) => {
-    if (logs[index] === undefined) {
-      return 30;
-    }
-    const { msg, ts} = logs[index];
-    const formattedTs = formatDateTimeAMPM(new Date(ts * 1000));
-    hiddenRowRef.current!["textContent"] = formattedTs + ": " + msg;
-    const rowHeight = window
-      .getComputedStyle(hiddenRowRef.current as Element)
-      .getPropertyValue("height")
-      .slice(0, -2);
-
-    return Number(rowHeight);
-  };
-
   return (
-    <div className="logs" onScroll={handleScroll}>
-      <AutoSizer>
+    <div className="logs">
+      <AutoSizer
+        onResize={({ height, width }) => {
+          if (listRef.current !== null)
+            listRef.current.resetAfterIndex(0, true);
+        }}
+      >
         {({ height, width }) => {
-          console.log("height", height);
-          console.log("width", width);
           return (
             <List
               height={height}
               width={width}
               itemCount={logs.length}
-              itemSize={(index) => getItemSize(logs, index)} // itemHeight in pixels
+              itemSize={(index) => getItemHeight(logs, index)} // itemHeight in pixels
               itemData={logs}
               ref={listRef as any}
+              onScroll={(args) => handleScroll(args)}
             >
               {Row}
             </List>
           );
         }}
       </AutoSizer>
+
       <div className="view-more-logs-button-container">
         {showNewLogsButton && (
           <button className="view-more-logs-button" onClick={scrollToBottom}>
@@ -168,7 +181,7 @@ export default function LogViewer({ range }: LogViewerProps) {
         )}
       </div>
       <div ref={logsEndRef}></div>
-      <div ref={hiddenRowRef} style={{color: "rgba(255, 255, 255, 0)"}}></div>
+      <div ref={hiddenRowRef} style={{ color: "rgba(255, 255, 255, 0)" }}></div>
     </div>
   );
 }
