@@ -4,7 +4,6 @@ import { LogLine } from "../API/types";
 import { TimeRange } from "../types";
 import { colorForLevel, formatDateTimeAMPM, getTimeRangeInSec } from "../utils";
 import { VariableSizeList as List } from "react-window";
-// import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 
 interface RowProps {
