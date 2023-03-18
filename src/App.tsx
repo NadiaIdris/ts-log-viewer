@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import LogViewer from "./Components/LogViewer";
 import TimePicker from "./Components/TimePicker";
