@@ -45,7 +45,7 @@ I used `VariableSizeList` to render the rows (logs), which means that each row c
 </AutoSizer>
 ```
 
-```
+```tsx
 // LogViewer.tsx
 // Function to get the height of each row in the list.
 function getItemHeight(logs: LogLine[], index: number) {
