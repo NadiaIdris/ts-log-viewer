@@ -19,7 +19,7 @@ I used `VariableSizeList` to render the rows (logs), which means that each row c
 <div ref={hiddenRowRef} style={{ color: "rgba(255, 255, 255, 0)" }}></div>
 ```
 
-````tsx
+```tsx
 // LogViewer.tsx
 <AutoSizer
   onResize={() => {
