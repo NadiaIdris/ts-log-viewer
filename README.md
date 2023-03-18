@@ -12,7 +12,7 @@ Log viewer sample app showcasing the use of `react-window` with `react-virtualiz
 
 ## VariableSizeList
 
-I used `VariableSizeList` to render the logs, which means that each row can have a different height based on content. I created an empty div on the bottom of the `LogViewer` component and made the text fully transparent. Then I defined `getItemHeight` function where I formatted the text the same way it would be rendered in the `Row` component and then I got the height of the hidden div. I used this height to set the height of the row in the `VariableSizeList`.
+I used `VariableSizeList` to render the rows (logs), which means that each row can have a different height based on content. I created an empty div on the bottom of the `LogViewer` component and made the text fully transparent. Then I defined `getItemHeight` function where I formatted the text the same way it would be rendered in the `Row` component, addeded the text in it and then I got the height of the hidden div. I used this height to set the height of the row in the `VariableSizeList`.
 
 ```tsx
 // This is how the hidden div looks like in LogViewer.tsx
