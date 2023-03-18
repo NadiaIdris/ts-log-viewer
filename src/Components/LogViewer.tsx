@@ -47,12 +47,12 @@ export default function LogViewer({ range }: LogViewerProps) {
     const { msg, ts } = logs[index];
     const formattedTs = formatDateTimeAMPM(new Date(ts * 1000));
     hiddenRowRef.current!["textContent"] = formattedTs + ": " + msg;
-    const rowHeight = window
+    const hiddenRowHeight = window
       .getComputedStyle(hiddenRowRef.current as Element)
       .getPropertyValue("height")
       .slice(0, -2);
-    rowHeightsRef.current.push(Number(rowHeight));
-    return Number(rowHeight);
+    rowHeightsRef.current.push(Number(hiddenRowHeight));
+    return Number(hiddenRowHeight);
   }
 
   function scrollToBottom() {
@@ -61,12 +61,7 @@ export default function LogViewer({ range }: LogViewerProps) {
   }
 
   // Handle onScroll: https://bobbyhadz.com/blog/react-onscroll.
-  function handleScroll({
-    scrollOffset,
-  }: {
-    scrollOffset: number;
-    scrollUpdateWasRequested: boolean;
-  }) {
+  function handleScroll({ scrollOffset }: { scrollOffset: number }) {
     const rowHeightsTotal = rowHeightsRef.current.reduce(
       (sum, value) => sum + value,
       0
@@ -120,7 +115,7 @@ export default function LogViewer({ range }: LogViewerProps) {
 
       getLast2MinLogs();
       nowTsInSecRef.current = new Date().getTime() / 1000; // We divide by 1000 to get the timestamp in seconds.
-    }, 30000);
+    }, 3000);
 
     return () => clearInterval(timer);
   }, [logs]);
@@ -128,7 +123,7 @@ export default function LogViewer({ range }: LogViewerProps) {
   return (
     <div className="logs">
       <AutoSizer
-        onResize={({ height, width }) => {
+        onResize={() => {
           if (listRef.current !== null)
             listRef.current.resetAfterIndex(0, true);
         }}
